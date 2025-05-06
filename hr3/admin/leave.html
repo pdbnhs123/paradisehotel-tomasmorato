@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Management</title>
+    <script src="https://kit.fontawesome.com/a2d9d5bd8b.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="logo-container">
+            <span class="logo-text">PARADISE HOTEL</span>
+        </div>
+
+        <a href="dashboard.html" class="menu-item">
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-item">
+            <span>Data Insight</span>
+            <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+        </div>
+        <div class="sub-menu">
+            <a href="data_insight.html" class="sub-menu-item">Analytics</a>
+        </div>
+
+        <a href="employee.html" class="menu-item">
+            <span>Employee & Shift Management</span>
+        </a>
+
+        <a href="leave.html" class="menu-item active">
+            <span>Leave Management</span>
+        </a>
+
+        <a href="violation.html" class="menu-item">
+            <span>Employee Violation</span>
+        </a>
+    </div>
+
+     <!-- Main Content Area -->
+     <div class="main-content">
+        <div class="header">
+            <h2>Admin Dashboard</h2>
+            <div class="header-buttons">
+                <div class="user-info">
+                    <span>Admin User</span>
+                    <button class="sign-out-btn" onclick="signOut()" style="border: none; font-size: 15px; color: #28a745;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Sign Out</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="leave-management">
+            <div class="header-controls">
+                <button class="tab-btn active" data-tab="leave-management">Leave Management</button>
+                <div class="search-filter">
+                    <input type="text" id="searchInput" placeholder="Search employees..." onkeyup="searchLeaves()">
+                    <select id="filterSelect" onchange="filterLeaves()">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-leave-balance" onclick="showLeaveBalance()">
+                        <i class="fas fa-calculator"></i> Leave Balance
+                    </button>
+                    <button class="btn-request-leave" onclick="requestLeave()">
+                        <i class="fas fa-plus"></i> Request Leave
+                    </button>
+                </div>
+            </div>
+
+            <table class="leave-table">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Employee Name</th>
+                        <th>Department</th>
+                        <th>Leave Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Days Requested</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                        <th>History</th>
+                        <th>Notify</th>
+                    </tr>
+                </thead>
+                <tbody id="leaveTableBody">
+                    <!-- Rows will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Leave Balance Modal -->
+        <div id="leaveBalanceModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('leaveBalanceModal')">&times;</span>
+                <h3>Leave Balance Management</h3>
+                <div class="balance-controls">
+                    <select id="employeeSelect" onchange="loadEmployeeBalance()">
+                        <option value="">Select Employee</option>
+                    </select>
+                    <button class="btn-add-balance" onclick="showAddBalanceForm()">
+                        <i class="fas fa-plus-circle"></i> Add Balance
+                    </button>
+                </div>
+                <div class="employee-balance">
+                    <h4>Current Balance for <span id="selectedEmployeeName">-</span>:</h4>
+                    <table id="balanceTable">
+                        <tr>
+                            <th>Leave Type</th>
+                            <th>Total</th>
+                            <th>Used</th>
+                            <th>Remaining</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Balance Modal -->
+        <div id="addBalanceModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('addBalanceModal')">&times;</span>
+                <h3>Add Leave Balance</h3>
+                <form id="addBalanceForm">
+                    <div class="form-group">
+                        <label for="balanceEmployee">Employee:</label>
+                        <select id="balanceEmployee" required>
+                            <option value="">Select Employee</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="balanceType">Leave Type:</label>
+                        <select id="balanceType" required>
+                            <option value="">Select Leave Type</option>
+                            <option value="annual">Annual Leave</option>
+                            <option value="sick">Sick Leave</option>
+                            <option value="emergency">Emergency Leave</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="balanceAmount">Days to Add:</label>
+                        <input type="number" id="balanceAmount" min="1" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Add Balance</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Request Leave Modal -->
+        <div id="requestLeaveModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('requestLeaveModal')">&times;</span>
+                <h3>Request New Leave</h3>
+                <div class="leave-balance-info" id="leaveBalanceInfo">
+                    <p>Select a leave type to view your available balance</p>
+                </div>
+                <form id="leaveRequestForm">
+                    <div class="form-group">
+                        <label for="leaveType">Leave Type:</label>
+                        <select id="leaveType" required onchange="updateAvailableBalance()">
+                            <option value="">Select Leave Type</option>
+                            <option value="vacation">Vacation Leave</option>
+                            <option value="sick">Sick Leave</option>
+                            <option value="emergency">Emergency Leave</option>
+                            <option value="bereavement">Bereavement Leave</option>
+                            <option value="maternity">Maternity Leave</option>
+                            <option value="paternity">Paternity Leave</option>
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" id="startDate" required onchange="calculateDays()">
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" id="endDate" required onchange="calculateDays()">
+                    </div>
+                    <div class="form-group">
+                        <label>Days Requested: <span id="daysCalculated">0</span></label>
+                        <label>Available Balance: <span id="availableBalance">0</span></label>
+                    </div>
+                    <div class="form-group">
+                        <label for="reason">Reason:</label>
+                        <textarea id="reason" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Submit Request</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- History Modal -->
+        <div id="historyModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('historyModal')">&times;</span>
+                <h3>Leave History for <span id="historyEmployeeName"></span></h3>
+                <div id="historyContent">
+                    <!-- History content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Employee data with leave balances
+            const employees = [{
+                id: "EMP-1001",
+                name: "John Smith",
+                department: "Marketing",
+                email: "john.smith@company.com",
+                balances: {
+                    annual: {
+                        total: 20,
+                        used: 5
+                    },
+                    sick: {
+                        total: 10,
+                        used: 2
+                    },
+                    emergency: {
+                        total: 5,
+                        used: 0
+                    }
+                }
+            }, {
+                id: "EMP-1002",
+                name: "Sarah Johnson",
+                department: "Engineering",
+                email: "sarah.j@company.com",
+                balances: {
+                    annual: {
+                        total: 20,
+                        used: 8
+                    },
+                    sick: {
+                        total: 10,
+                        used: 1
+                    },
+                    emergency: {
+                        total: 5,
+                        used: 1
+                    }
+                }
+            }, {
+                id: "EMP-1003",
+                name: "Michael Chen",
+                department: "HR",
+                email: "michael.chen@company.com",
+                balances: {
+                    annual: {
+                        total: 20,
+                        used: 3
+                    },
+                    sick: {
+                        total: 10,
+                        used: 0
+                    },
+                    emergency: {
+                        total: 5,
+                        used: 2
+                    }
+                }
+            }];
+
+            // Sample data for leave requests
+            let leaveRequests = [{
+                id: "EMP-1001",
+                name: "John Smith",
+                department: "Marketing",
+                leaveType: "Annual Leave",
+                startDate: "2023-06-15",
+                endDate: "2023-06-18",
+                days: 4,
+                status: "Pending",
+                email: "john.smith@company.com",
+                requestDate: "2023-06-01"
+            }, {
+                id: "EMP-1001",
+                name: "John Smith",
+                department: "Marketing",
+                leaveType: "Sick Leave",
+                startDate: "2023-05-10",
+                endDate: "2023-05-12",
+                days: 3,
+                status: "Approved",
+                email: "john.smith@company.com",
+                requestDate: "2023-05-05"
+            }, {
+                id: "EMP-1001",
+                name: "John Smith",
+                department: "Marketing",
+                leaveType: "Emergency Leave",
+                startDate: "2023-04-20",
+                endDate: "2023-04-21",
+                days: 2,
+                status: "Approved",
+                email: "john.smith@company.com",
+                requestDate: "2023-04-19"
+            }, {
+                id: "EMP-1002",
+                name: "Sarah Johnson",
+                department: "Engineering",
+                leaveType: "Sick Leave",
+                startDate: "2023-06-10",
+                endDate: "2023-06-12",
+                days: 3,
+                status: "Approved",
+                email: "sarah.j@company.com",
+                requestDate: "2023-06-05"
+            }, {
+                id: "EMP-1002",
+                name: "Sarah Johnson",
+                department: "Engineering",
+                leaveType: "Annual Leave",
+                startDate: "2023-03-01",
+                endDate: "2023-03-05",
+                days: 5,
+                status: "Approved",
+                email: "sarah.j@company.com",
+                requestDate: "2023-02-25"
+            }, {
+                id: "EMP-1003",
+                name: "Michael Chen",
+                department: "HR",
+                leaveType: "Emergency Leave",
+                startDate: "2023-06-20",
+                endDate: "2023-06-22",
+                days: 3,
+                status: "Pending",
+                email: "michael.chen@company.com",
+                requestDate: "2023-06-15"
+            }, {
+                id: "EMP-1003",
+                name: "Michael Chen",
+                department: "HR",
+                leaveType: "Annual Leave",
+                startDate: "2023-01-15",
+                endDate: "2023-01-20",
+                days: 6,
+                status: "Approved",
+                email: "michael.chen@company.com",
+                requestDate: "2023-01-10"
+            }];
+
+            // Current user (admin or employee)
+            const currentUser = {
+                id: "ADMIN-001",
+                name: "Admin User",
+                isAdmin: true
+            };
+
+            // Initialize the page
+            document.addEventListener("DOMContentLoaded", function() {
+                renderLeaveTable();
+                populateEmployeeDropdowns();
+
+                // Form submission for adding balance
+                document.getElementById("addBalanceForm").addEventListener("submit", function(e) {
+                    e.preventDefault();
+                    addLeaveBalance();
+                });
+
+                // Form submission for leave request
+                document.getElementById("leaveRequestForm").addEventListener("submit", function(e) {
+                    e.preventDefault();
+                    submitLeaveRequest();
+                });
+            });
+
+            // Function to populate employee dropdowns
+            function populateEmployeeDropdowns() {
+                const employeeSelect = document.getElementById("employeeSelect");
+                const balanceEmployee = document.getElementById("balanceEmployee");
+
+                employeeSelect.innerHTML = '<option value="">Select Employee</option>';
+                balanceEmployee.innerHTML = '<option value="">Select Employee</option>';
+
+                employees.forEach(employee => {
+                    const option1 = document.createElement("option");
+                    option1.value = employee.id;
+                    option1.textContent = `${employee.name} (${employee.id})`;
+
+                    const option2 = option1.cloneNode(true);
+
+                    employeeSelect.appendChild(option1);
+                    balanceEmployee.appendChild(option2);
+                });
+            }
+
+            // Function to render the leave table
+            function renderLeaveTable() {
+                const tableBody = document.getElementById("leaveTableBody");
+                tableBody.innerHTML = "";
+
+                // Get unique employee IDs from leaveRequests
+                const uniqueEmployeeIds = [...new Set(leaveRequests.map(request => request.id))];
+
+                // For each unique employee, show their most recent request
+                uniqueEmployeeIds.forEach(empId => {
+                            // Find all requests for this employee
+                            const employeeRequests = leaveRequests.filter(req => req.id === empId);
+                            // Get the most recent request
+                            const mostRecentRequest = employeeRequests.sort((a, b) =>
+                                new Date(b.requestDate) - new Date(a.requestDate))[0];
+
+                            const employee = employees.find(emp => emp.id === empId);
+
+                            const row = document.createElement("tr");
+
+                            row.innerHTML = `
+                        <td>${mostRecentRequest.id}</td>
+                        <td>${mostRecentRequest.name}</td>
+                        <td>${mostRecentRequest.department}</td>
+                        <td>${mostRecentRequest.leaveType}</td>
+                        <td>${mostRecentRequest.startDate}</td>
+                        <td>${mostRecentRequest.endDate}</td>
+                        <td>${mostRecentRequest.days}</td>
+                        <td>
+                            <span class="status-${mostRecentRequest.status.toLowerCase()}">
+                                ${mostRecentRequest.status}
+                            </span>
+                        </td>
+                        <td>
+                            ${mostRecentRequest.status === "Pending" ? 
+                                `<button class="btn-approve" onclick="approveLeave('${mostRecentRequest.id}')">Approve</button>
+                                <button class="btn-reject" onclick="rejectLeave('${mostRecentRequest.id}')">Reject</button>` 
+                                : '-'}
+                        </td>
+                        <td>
+                            <div class="history-dropdown">
+                                <button class="btn-history" onclick="toggleHistoryDropdown('${empId}', this)">
+                                    View History
+                                </button>
+                                <div id="historyDropdown-${empId}" class="history-content">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Leave Type</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Days</th>
+                                                <th>Status</th>
+                                                <th>Request Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${employeeRequests.map(request => `
+                                                <tr>
+                                                    <td>${request.leaveType}</td>
+                                                    <td>${request.startDate}</td>
+                                                    <td>${request.endDate}</td>
+                                                    <td>${request.days}</td>
+                                                    <td><span class="status-${request.status.toLowerCase()}">${request.status}</span></td>
+                                                    <td>${request.requestDate}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn-notify" onclick="notifyEmployee('${mostRecentRequest.email}')">
+                                <i class="fas fa-envelope"></i> Notify
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+          
+            // Function to toggle history dropdown
+            function toggleHistoryDropdown(empId, button) {
+                // Close all other dropdowns first
+                document.querySelectorAll('.history-content').forEach(dropdown => {
+                    if (dropdown.id !== `historyDropdown-${empId}`) {
+                        dropdown.classList.remove('show-history');
+                    }
+                });
+                
+                // Toggle the clicked dropdown
+                const dropdown = document.getElementById(`historyDropdown-${empId}`);
+                dropdown.classList.toggle('show-history');
+                
+                // Close dropdown when clicking outside
+                window.onclick = function(event) {
+                    if (!event.target.matches('.btn-history') && !event.target.closest('.history-content')) {
+                        dropdown.classList.remove('show-history');
+                    }
+                };
+            }
+          
+            // Function to approve leave and deduct from balance
+            function approveLeave(empId) {
+                const requestIndex = leaveRequests.findIndex(req => req.id === empId);
+                if (requestIndex !== -1) {
+                    const employee = employees.find(emp => emp.id === empId);
+                    if (employee) {
+                        const leaveType = leaveRequests[requestIndex].leaveType.includes('Annual') ? 'annual' :
+                                          leaveRequests[requestIndex].leaveType.includes('Sick') ? 'sick' : 'emergency';
+                        
+                        const remaining = employee.balances[leaveType].total - employee.balances[leaveType].used;
+                        
+                        if (remaining >= leaveRequests[requestIndex].days) {
+                            // Update the specific leave request
+                            leaveRequests[requestIndex].status = "Approved";
+                            // Update employee balance
+                            employee.balances[leaveType].used += leaveRequests[requestIndex].days;
+                            // Re-render the table
+                            renderLeaveTable();
+                            alert(`Leave for ${leaveRequests[requestIndex].name} has been approved. ${leaveRequests[requestIndex].days} days deducted from balance.`);
+                        } else {
+                            alert(`Cannot approve leave. Insufficient ${leaveType} balance.`);
+                        }
+                    }
+                }
+            }
+          
+            // Function to reject leave
+            function rejectLeave(empId) {
+                const requestIndex = leaveRequests.findIndex(req => req.id === empId);
+                if (requestIndex !== -1) {
+                    // Update the specific leave request
+                    leaveRequests[requestIndex].status = "Rejected";
+                    // Re-render the table
+                    renderLeaveTable();
+                    alert(`Leave for ${leaveRequests[requestIndex].name} has been rejected.`);
+                }
+            }
+          
+            // Function to load employee balance
+            function loadEmployeeBalance() {
+                const employeeId = document.getElementById("employeeSelect").value;
+                const balanceTable = document.getElementById("balanceTable");
+                
+                // Clear existing rows (except header)
+                while (balanceTable.rows.length > 1) {
+                    balanceTable.deleteRow(1);
+                }
+                
+                if (!employeeId) {
+                    document.getElementById("selectedEmployeeName").textContent = "-";
+                    return;
+                }
+                
+                const employee = employees.find(emp => emp.id === employeeId);
+                if (employee) {
+                    document.getElementById("selectedEmployeeName").textContent = employee.name;
+                    
+                    // Add rows for each leave type
+                    for (const [type, balance] of Object.entries(employee.balances)) {
+                        const row = balanceTable.insertRow();
+                        const typeName = type === 'vacation' ? 'Vacation Leave' : 
+                                        type === 'sick' ? 'Sick Leave' : 'Emergency Leave';
+                                        type === 'bereavement' ? 'Bereavement Leave' :
+                                        type === 'maternity' ? 'Maternity Leave' : 'Paternity Leave';
+                        
+                        row.innerHTML = `
+                            <td>${typeName}</td>
+                            <td>${balance.total}</td>
+                            <td>${balance.used}</td>
+                            <td>${balance.total - balance.used}</td>
+                        `;
+                    }
+                }
+            }
+          
+            // Function to show add balance form
+            function showAddBalanceForm() {
+                closeModal('leaveBalanceModal');
+                document.getElementById("addBalanceModal").style.display = "block";
+            }
+          
+            // Function to add leave balance
+            function addLeaveBalance() {
+                const employeeId = document.getElementById("balanceEmployee").value;
+                const leaveType = document.getElementById("balanceType").value;
+                const amount = parseInt(document.getElementById("balanceAmount").value);
+                
+                if (!employeeId || !leaveType || !amount) {
+                    alert("Please fill all fields");
+                    return;
+                }
+                
+                const employee = employees.find(emp => emp.id === employeeId);
+                if (employee) {
+                    employee.balances[leaveType].total += amount;
+                    alert(`Added ${amount} days to ${employee.name}'s ${leaveType} balance`);
+                    closeModal('addBalanceModal');
+                    document.getElementById("addBalanceForm").reset();
+                    
+                    // Update the balance display if this employee is currently viewed
+                    if (document.getElementById("employeeSelect").value === employeeId) {
+                        loadEmployeeBalance();
+                    }
+                }
+            }
+          
+            // Function to update available balance in leave request form
+            function updateAvailableBalance() {
+                const leaveType = document.getElementById("leaveType").value;
+                if (!leaveType) return;
+                
+                // In a real app, this would check the current user's balance
+                // For demo, we'll use the first employee's balance
+                const employee = employees[0];
+                const balance = employee.balances[leaveType];
+                const available = balance.total - balance.used;
+                
+                document.getElementById("availableBalance").textContent = available;
+                document.getElementById("leaveBalanceInfo").innerHTML = `
+                    <p>Your ${leaveType === 'annual' ? 'Annual Leave' : 
+                                leaveType === 'sick' ? 'Sick Leave' : 'Emergency Leave'} balance: 
+                        ${available} days remaining (${balance.used} used of ${balance.total})</p>
+                `;
+            }
+          
+            // Function to calculate days between dates
+            function calculateDays() {
+                const startDate = new Date(document.getElementById("startDate").value);
+                const endDate = new Date(document.getElementById("endDate").value);
+                
+                if (startDate && endDate && startDate <= endDate) {
+                    const diffTime = Math.abs(endDate - startDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end days
+                    document.getElementById("daysCalculated").textContent = diffDays;
+                } else {
+                    document.getElementById("daysCalculated").textContent = "0";
+                }
+            }
+          
+            // Function to submit leave request
+            function submitLeaveRequest() {
+                const leaveType = document.getElementById("leaveType").value;
+                const startDate = document.getElementById("startDate").value;
+                const endDate = document.getElementById("endDate").value;
+                const days = parseInt(document.getElementById("daysCalculated").textContent);
+                const reason = document.getElementById("reason").value;
+                const today = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+                
+                if (!leaveType || !startDate || !endDate || days <= 0 || !reason) {
+                    alert("Please fill all fields correctly");
+                    return;
+                }
+                
+                // Create new leave request
+                const newRequest = {
+                    id: currentUser.isAdmin ? "EMP-1001" : currentUser.id,
+                    name: currentUser.isAdmin ? "John Smith" : currentUser.name,
+                    department: currentUser.isAdmin ? "Marketing" : "Your Department",
+                    leaveType: leaveType === 'annual' ? 'Annual Leave' : 
+                               leaveType === 'sick' ? 'Sick Leave' : 'Emergency Leave',
+                    startDate,
+                    endDate,
+                    days,
+                    status: "Pending",
+                    email: currentUser.isAdmin ? "john.smith@company.com" : "your.email@company.com",
+                    requestDate: today
+                };
+                
+                leaveRequests.unshift(newRequest);
+                renderLeaveTable();
+                closeModal('requestLeaveModal');
+                document.getElementById("leaveRequestForm").reset();
+                
+                alert("Leave request submitted successfully!");
+            }
+          
+            // Function to notify employee via email
+            function notifyEmployee(email) {
+                window.location.href = `mailto:${email}?subject=Your Leave Application Status&body=Dear Employee,%0D%0A%0D%0A`;
+            }
+          
+            // Search functionality
+            function searchLeaves() {
+                const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+                const rows = document.querySelectorAll("#leaveTableBody tr");
+                
+                rows.forEach(row => {
+                    const name = row.cells[1].textContent.toLowerCase();
+                    const id = row.cells[0].textContent.toLowerCase();
+                    const dept = row.cells[2].textContent.toLowerCase();
+                    
+                    if (name.includes(searchTerm) || id.includes(searchTerm) || dept.includes(searchTerm)) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            }
+          
+            // Filter functionality
+            function filterLeaves() {
+                const filterValue = document.getElementById("filterSelect").value.toLowerCase();
+                const rows = document.querySelectorAll("#leaveTableBody tr");
+                
+                rows.forEach(row => {
+                    const status = row.cells[7].textContent.toLowerCase();
+                    
+                    if (filterValue === "all" || status.includes(filterValue)) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            }
+
+            // Function to notify employee via email
+            function notifyEmployee(email) {
+                const employeeRequest = leaveRequests.find(req => req.email === email);
+                if (!employeeRequest) return;
+                    
+            // Create a more detailed email body
+                const subject = `Leave Application Status - ${employeeRequest.leaveType}`;
+                const body = `Dear ${employeeRequest.name},\n\n` +
+                             `Your leave application details:\n\n` +
+                             `Type: ${employeeRequest.leaveType}\n` +
+                             `Dates: ${employeeRequest.startDate} to ${employeeRequest.endDate}\n` +
+                             `Days: ${employeeRequest.days}\n` +
+                             `Status: ${employeeRequest.status}\n\n` +
+                             `Best regards,\n` +
+                            `HR Department`;
+                    
+            // Encode the subject and body for URL
+                const encodedSubject = encodeURIComponent(subject);
+                const encodedBody = encodeURIComponent(body);
+                    
+             // Open Gmail with pre-filled email
+                window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodedSubject}&body=${encodedBody}`, '_blank');
+            }
+
+                // ... (keep all remaining JavaScript code the same)
+          
+            // Modal functions
+            function showLeaveBalance() {
+                document.getElementById("leaveBalanceModal").style.display = "block";
+            }
+          
+            function requestLeave() {
+                document.getElementById("requestLeaveModal").style.display = "block";
+                // Reset form and show current balance
+                document.getElementById("leaveRequestForm").reset();
+                document.getElementById("daysCalculated").textContent = "0";
+                document.getElementById("availableBalance").textContent = "0";
+                document.getElementById("leaveBalanceInfo").innerHTML = "<p>Select a leave type to view your available balance</p>";
+            }
+          
+            function closeModal(modalId) {
+                document.getElementById(modalId).style.display = "none";
+            }
+            
+            function toggleSidebar() {
+                const sidebar = document.querySelector('.sidebar');
+                const mainContent = document.querySelector('.main-content');
+                
+                if (sidebar.style.width === '70px') {
+                    sidebar.style.width = '250px';
+                    mainContent.style.marginLeft = '250px';
+                    mainContent.style.width = 'calc(100% - 250px)';
+                } else {
+                    sidebar.style.width = '70px';
+                    mainContent.style.marginLeft = '70px';
+                    mainContent.style.width = 'calc(100% - 70px)';
+                }
+            }
+        </script>
+</body>
+
+</html>

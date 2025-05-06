@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paradise Hotel - Employee Management</title>
+    <script src="https://kit.fontawesome.com/a2d9d5bd8b.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2e8b57;
+            --secondary-color: #e0f7fa;
+            --text-color: #355c7d;
+            --light-color: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            background-color: #f5f5f5;
+            color: var(--text-color);
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: var(--light-color);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .sidebar.collapsed {
+            width: 70px;
+        }
+        
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .menu-item span,
+        .sidebar.collapsed .sub-menu {
+            display: none;
+        }
+        
+        .sidebar.collapsed .menu-item {
+            justify-content: center;
+            padding: 15px 0;
+        }
+        
+        .sidebar.collapsed .menu-item i {
+            margin-right: 0;
+            font-size: 1.5rem;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+            text-decoration: none;
+            position: relative;
+        }
+        
+        .menu-item:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+        
+        .menu-item.active {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .sub-menu {
+            display: none;
+            padding-left: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .sub-menu.show {
+            display: block;
+        }
+        
+        .sub-menu-item {
+            display: block;
+            padding: 10px 15px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .sub-menu-item:hover {
+            background-color: #e9ecef;
+            color: var(--primary-color);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            padding: 20px;
+            background-color: #f9f9f9;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        .main-content.expanded {
+            margin-left: 70px;
+            width: calc(100% - 70px);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--light-color);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            padding: 10px;
+            display: none;
+            z-index: 100;
+        }
+        
+        .user-dropdown.show {
+            display: block;
+        }
+        
+        .user-dropdown a {
+            display: block;
+            padding: 8px 15px;
+            color: var(--text-color);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        
+        .user-dropdown a:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        /* Dashboard Content Styles */
+        .dashboard-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-section {
+            background: var(--light-color);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: rgba(224, 247, 250, 0.5);
+        }
+        
+        /* Status badges */
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        
+        .status-present {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+        
+        .status-absent {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+        
+        .status-late {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+        
+        .status-on-leave {
+            background-color: #E2E3E5;
+            color: #383D41;
+        }
+        
+        /* Employee Grid */
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .employee-card {
+            background: var(--light-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .employee-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .employee-card.selected {
+            border: 2px solid var(--primary-color);
+            background-color: var(--secondary-color);
+        }
+        
+        .employee-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        /* Employee Details */
+        .detail-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        .overtime-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        input[type="text"],
+        input[type="date"],
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #247a4a;
+        }
+        
+        button i {
+            margin-right: 5px;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* Assign Shift Modal Styles */
+        .shift-assignment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .shift-option {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .shift-option:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .shift-option.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .employee-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        
+        .employee-list-item {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .employee-list-item:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .employee-list-item.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .employee-list-item .current-shift {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .employee-list-item.selected .current-shift {
+            color: #ddd;
+        }
+        
+        /* Header Controls */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* QR Code Styles */
+        #qrCodePreview {
+            padding: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #qrCodePreview img {
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+
+        #qrCodePreview canvas {
+            max-width: 100%;
+        }
+
+        #qrContent {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        #qrScannerContainer video {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #qrScanResult {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            display: none;
+        }
+
+        #qrScanResult pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar .logo-text,
+            .sidebar .menu-item span,
+            .sidebar .sub-menu {
+                display: none;
+            }
+            
+            .sidebar .menu-item {
+                justify-content: center;
+                padding: 15px 0;
+            }
+            
+            .sidebar .menu-item i {
+                margin-right: 0;
+                font-size: 1.5rem;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .controls button {
+                width: 100%;
+            }
+            
+            .header-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <i class="fas fa-umbrella-beach logo-icon"></i>
+            <span class="logo-text">PARADISE HOTEL</span>
+        </div>
+
+        <a href="dashboard.php" class="menu-item active">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-item" id="dataInsightMenu">
+            <i class="fas fa-chart-pie"></i>
+            <span>Data Insight</span>
+            <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+        </div>
+        <div class="sub-menu" id="dataInsightSubMenu">
+            <a href="data_insight.html" class="sub-menu-item">Analytics</a>
+        </div>
+
+        <a href="employee.html" class="menu-item">
+            <i class="fas fa-users"></i>
+            <span>Employee & Shift Management</span>
+        </a>
+
+        <a href="leave.html" class="menu-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>Leave Management</span>
+        </a>
+
+        <a href="violation.html" class="menu-item">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Employee Violation</span>
+        </a>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <h2>Admin Dashboard</h2>
+            </div>
+            <div class="header-buttons">
+                <div class="user-info" onclick="toggleUserDropdown()">
+                    <span>Admin User</span>&nbsp;&nbsp;
+                    <a href="#" onclick="signOut()" style="color: #2e8b57; text-decoration: none;">Sign Out</a>
+                    <i class="fas fa-caret-down"></i>
+                </div>
+            </div>
+        </div>
+
+
+            <header>
+                <h1><i class="fas fa-users"></i> Employee Management System</h1>
+            </header>
+
+            <main>
+                <section class="dashboard-section">
+                    <h2><i class="fas fa-clock"></i> Today's Attendance</h2>
+                    <div class="date-display" id="currentDate"></div>
+                    <div class="controls">
+                        <input type="text" id="searchAttendance" placeholder="Search employees...">
+                        <button id="refreshAttendance"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        <button id="assignShiftBtn"><i class="fas fa-calendar-plus"></i> Assign Shift</button>
+                        <button id="addEmployeeBtn"><i class="fas fa-user-plus"></i> Add Employee</button>
+                <button id="generateQrBtnMain"><i class="fas fa-qrcode"></i> Generate QR</button>
+                <button id="scanQrBtn"><i class="fas fa-camera"></i> Scan QR</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="attendanceTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Clock In</th>
+                                    <th>Clock Out</th>
+                                    <th>Status</th>
+                                    <th>Shift</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceBody">
+                                <!-- Filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="dashboard-section">
+                    <h2><i class="fas fa-address-card"></i> Employee Directory</h2>
+                    <div class="controls">
+                        <input type="text" id="searchEmployees" placeholder="Search employees...">
+                        <select id="filterDepartment">
+                            <option value="">All Departments</option>
+                            <!-- Filled by JavaScript -->
+                        </select>
+                    </div>
+                    <div class="employee-grid" id="employeeGrid">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </section>
+
+                <section class="dashboard-section" id="employeeDetailsSection" style="display: none;">
+                    <h2 id="detailEmployeeName"></h2>
+                    <div class="detail-tabs">
+                        <button class="tab-btn active" data-tab="attendance">Attendance History</button>
+                        <button class="tab-btn" data-tab="shifts">Shift Schedule</button>
+                    </div>
+                    
+                    <div class="tab-content active" id="attendanceTab">
+                        <div class="controls">
+                            <input type="date" id="startDate">
+                            <input type="date" id="endDate">
+                            <button id="filterAttendance">Filter</button>
+                            <button id="updateShiftBtn"><i class="fas fa-calendar-alt"></i> Update Shift</button>
+                        </div>
+                        <div class="table-container">
+                            <table id="attendanceHistoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Clock In</th>
+                                        <th>Clock Out</th>
+                                        <th>Hours</th>
+                                        <th>Overtime</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendanceHistoryBody">
+                                    <!-- Filled by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="shiftsTab">
+                        <div class="table-container">
+                            <table id="shiftScheduleTable">
+                                <thead>
+                                    <tr>
+                                        <th>Shift Type</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Recurring Pattern</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shiftScheduleBody">
+                                    <!-- Filled by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Assign Shift Modal -->
+    <div class="modal" id="assignShiftModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Assign Shift to Employees</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <form id="assignShiftForm">
+                <div class="form-group">
+                    <label>Select Shift Type</label>
+                    <div class="shift-assignment-grid">
+                        <div class="shift-option" data-shift="Morning">Morning</div>
+                        <div class="shift-option" data-shift="Afternoon">Afternoon</div>
+                        <div class="shift-option" data-shift="Night">Night</div>
+                    </div>
+                    <input type="hidden" id="selectedShiftType">
+                </div>
+                
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="assignStartDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>End Date (optional)</label>
+                    <input type="date" id="assignEndDate">
+                </div>
+                
+                <div class="form-group">
+                    <label>Recurring Pattern</label>
+                    <select id="assignRecurring" required>
+                        <option value="Mon-Fri">Monday-Friday</option>
+                        <option value="Mon-Sat">Monday-Saturday</option>
+                        <option value="Mon-Sun">Monday-Sunday</option>
+                        <option value="Custom">Custom</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Employees</label>
+                    <div class="employee-list" id="employeeSelectionList">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+                
+                <button type="submit">Assign Shift</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal" id="addEmployeeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Employee</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <form id="employeeForm">
+                <div class="form-group">
+                    <label for="empId">Employee ID</label>
+                    <input type="text" id="empId" required>
+                </div>
+                <div class="form-group">
+                    <label for="empName">Full Name</label>
+                    <input type="text" id="empName" required>
+                </div>
+                <div class="form-group">
+                    <label for="empStatus">Status</label>
+                    <select id="empStatus" required>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="empShift">Shift Type</label>
+                    <select id="empShift" required>
+                        <option value="Morning">Morning</option>
+                        <option value="Afternoon">Afternoon</option>
+                        <option value="Night">Night</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="empDept">Department</label>
+                    <input type="text" id="empDept" required>
+                </div>
+                <div class="form-group">
+                    <label for="empPosition">Position</label>
+                    <input type="text" id="empPosition" required>
+                </div>
+                <div class="form-group">
+                    <label for="empHireDate">Hire Date</label>
+                    <input type="date" id="empHireDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="empContact">Contact Number</label>
+                    <input type="text" id="empContact" required>
+                </div>
+                <div class="form-group">
+                    <label for="empEmail">Email</label>
+                    <input type="email" id="empEmail" required>
+                </div>
+                <button type="submit">Add Employee</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Shift Modal -->
+    <div class="modal" id="editShiftModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update Shift Schedule</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <form id="shiftForm">
+                <div class="form-group">
+                    <label for="shiftType">Shift Type</label>
+                    <select id="shiftType" required>
+                        <option value="Morning">Morning</option>
+                        <option value="Afternoon">Afternoon</option>
+                        <option value="Night">Night</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="shiftStartDate">Start Date</label>
+                    <input type="date" id="shiftStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="shiftEndDate">End Date (optional)</label>
+                    <input type="date" id="shiftEndDate">
+                </div>
+                <div class="form-group">
+                    <label for="shiftRecurring">Recurring Pattern</label>
+                    <select id="shiftRecurring" required>
+                        <option value="Mon-Fri">Monday-Friday</option>
+                        <option value="Mon-Sat">Monday-Saturday</option>
+                        <option value="Mon-Sun">Monday-Sunday</option>
+                        <option value="Custom">Custom</option>
+                    </select>
+                </div>
+                <button type="submit" id="updateShiftBtn">Update Shift</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- QR Code Generator Modal -->
+    <div class="modal" id="qrGeneratorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Generate Employee QR Code</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <form id="qrGeneratorForm">
+                <div class="form-group">
+                    <label>Select Employee</label>
+                    <select id="qrEmployeeSelect" required>
+                        <option value="">-- Select Employee --</option>
+                        <!-- Filled by JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>QR Code Content</label>
+                    <textarea id="qrContent" rows="3" placeholder="Employee ID: {id}\nName: {name}\nDepartment: {dept}\nPosition: {position}" required></textarea>
+                </div>
+                <div id="qrCodePreview" style="text-align: center; margin: 20px 0;"></div>
+                <button type="button" id="generateQrBtn">Generate QR Code</button>
+                <button type="button" id="downloadQrBtn" disabled><i class="fas fa-download"></i> Download QR Code</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- QR Code Scanner Modal -->
+    <div class="modal" id="qrScannerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Scan Employee QR Code</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div id="qrScannerContainer" style="width: 100%; height: 300px;"></div>
+            <div id="qrScanResult" style="margin-top: 20px; padding: 10px; border: 1px solid #ddd; display: none;">
+                <h4>Scan Result:</h4>
+                <pre id="qrResultContent"></pre>
+                <button id="viewEmployeeBtn" style="display: none;">View Employee</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data - In a real app, this would come from an API
+        let employees = [
+            {
+                employee_id: 'EMP001',
+                employee_name: 'John Smith',
+                status: 'Active',
+                shift_type: 'Morning Shift',
+                hire_date: '2020-01-15',
+                department: 'IT',
+                position: 'Developer',
+                contact_number: '555-0101',
+                email: 'john.smith@company.com'
+            },
+            {
+                employee_id: 'EMP002',
+                employee_name: 'Sarah Johnson',
+                status: 'Active',
+                shift_type: 'Morning Shift',
+                hire_date: '2021-03-22',
+                department: 'HR',
+                position: 'Manager',
+                contact_number: '555-0102',
+                email: 'sarah.j@company.com'
+            },
+            {
+                employee_id: 'EMP003',
+                employee_name: 'Mike Brown',
+                status: 'Active',
+                shift_type: 'Night Shift',
+                hire_date: '2022-05-10',
+                department: 'Operations',
+                position: 'Supervisor',
+                contact_number: '555-0103',
+                email: 'mike.b@company.com'
+            }
+        ];
+
+        let attendance = [
+            {
+                employee_id: 'EMP001',
+                date: new Date().toISOString().split('T')[0],
+                clock_in: '08:02:00',
+                clock_out: '17:15:00',
+                status: 'Present',
+                hours_worked: 9.22
+            },
+            {
+                employee_id: 'EMP002',
+                date: new Date().toISOString().split('T')[0],
+                clock_in: '09:15:00',
+                clock_out: null,
+                status: 'Late',
+                hours_worked: null
+            },
+            {
+                employee_id: 'EMP003',
+                date: new Date().toISOString().split('T')[0],
+                clock_in: null,
+                clock_out: null,
+                status: 'Absent',
+                hours_worked: null
+            }
+        ];
+
+        let attendanceHistory = [
+            {
+                employee_id: 'EMP001',
+                date: '2025-05-02',
+                clock_in: '08:00:00',
+                clock_out: '17:00:00',
+                status: 'Present',
+                hours_worked: 9.0
+            },
+            {
+                employee_id: 'EMP001',
+                date: '2025-05-03',
+                clock_in: '08:00:00',
+                clock_out: '19:30:00', // 11.5 hours (3.5 overtime)
+                status: 'Present',
+                hours_worked: 11.5
+            },
+            {
+                employee_id: 'EMP001',
+                date: '2025-05-04',
+                clock_in: '08:15:00',
+                clock_out: '17:10:00',
+                status: 'Present',
+                hours_worked: 8.92
+            },
+            {
+                employee_id: 'EMP001',
+                date: '2025-05-24',
+                clock_in: null,
+                clock_out: null,
+                status: 'On Leave',
+                hours_worked: null
+            }
+        ];
+
+        let shiftSchedule = [
+            {
+                employee_id: 'EMP001',
+                shift_type: 'Morning',
+                start_date: '2025-01-05',
+                end_date: null,
+                recurring_pattern: 'Mon-Fri'
+            },
+            {
+                employee_id: 'EMP002',
+                shift_type: 'Morning',
+                start_date: '2025-01-06',
+                end_date: null,
+                recurring_pattern: 'Mon-Sun'
+            },
+            {
+                employee_id: 'EMP003',
+                shift_type: 'Night',
+                start_date: '2025-01-07',
+                end_date: null,
+                recurring_pattern: 'Mon-Sat'
+            }
+        ];
+
+        // DOM Elements
+        const currentDateEl = document.getElementById('currentDate');
+        const attendanceBody = document.getElementById('attendanceBody');
+        const employeeGrid = document.getElementById('employeeGrid');
+        const employeeDetailsSection = document.getElementById('employeeDetailsSection');
+        const detailEmployeeName = document.getElementById('detailEmployeeName');
+        const attendanceHistoryBody = document.getElementById('attendanceHistoryBody');
+        const shiftScheduleBody = document.getElementById('shiftScheduleBody');
+        const filterDepartment = document.getElementById('filterDepartment');
+        const searchEmployees = document.getElementById('searchEmployees');
+        const searchAttendance = document.getElementById('searchAttendance');
+        const refreshAttendance = document.getElementById('refreshAttendance');
+        const filterAttendance = document.getElementById('filterAttendance');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const addEmployeeBtn = document.getElementById('addEmployeeBtn');
+        const addEmployeeModal = document.getElementById('addEmployeeModal');
+        const employeeForm = document.getElementById('employeeForm');
+        const editShiftModal = document.getElementById('editShiftModal');
+        const shiftForm = document.getElementById('shiftForm');
+        const updateShiftBtn = document.getElementById('updateShiftBtn');
+        const assignShiftBtn = document.getElementById('assignShiftBtn');
+        const assignShiftModal = document.getElementById('assignShiftModal');
+        const assignShiftForm = document.getElementById('assignShiftForm');
+        const employeeSelectionList = document.getElementById('employeeSelectionList');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const dataInsightMenu = document.getElementById('dataInsightMenu');
+        const dataInsightSubMenu = document.getElementById('dataInsightSubMenu');
+        const generateQrBtnMain = document.getElementById('generateQrBtnMain');
+        const scanQrBtn = document.getElementById('scanQrBtn');
+        const qrGeneratorModal = document.getElementById('qrGeneratorModal');
+        const qrScannerModal = document.getElementById('qrScannerModal');
+        const generateQrBtn = document.getElementById('generateQrBtn');
+        const downloadQrBtn = document.getElementById('downloadQrBtn');
+        const qrResultContent = document.getElementById('qrResultContent');
+        const viewEmployeeBtn = document.getElementById('viewEmployeeBtn');
+
+        // Track selected employee and QR data
+        let selectedEmployee = null;
+        let currentQrData = null;
+        let html5QrCode = null;
+
+        // Current date display
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            currentDateEl.textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        // Toggle data insight submenu
+        function toggleDataInsightMenu() {
+            dataInsightSubMenu.classList.toggle('show');
+        }
+
+        // Clock in/out functions
+        function handleClockIn(employeeId) {
+            const today = new Date().toISOString().split('T')[0];
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            
+            // Check if already clocked in
+            const existingRecord = attendance.find(record => 
+                record.employee_id === employeeId && record.date === today);
+            
+            if (existingRecord && existingRecord.clock_in) {
+                alert('You have already clocked in today!');
+                return;
+            }
+            
+            if (existingRecord) {
+                // Update existing record
+                existingRecord.clock_in = time;
+                existingRecord.status = 'Present';
+            } else {
+                // Create new record
+                attendance.push({
+                    employee_id: employeeId,
+                    date: today,
+                    clock_in: time,
+                    clock_out: null,
+                    status: 'Present',
+                    hours_worked: null
+                });
+            }
+            
+            renderTodayAttendance();
+            alert('Clock in recorded successfully');
+        }
+        
+        function handleClockOut(employeeId) {
+            const today = new Date().toISOString().split('T')[0];
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            
+            // Find today's record
+            const record = attendance.find(record => 
+                record.employee_id === employeeId && record.date === today);
+            
+            if (!record) {
+                alert('You need to clock in first!');
+                return;
+            }
+            
+            if (record.clock_out) {
+                alert('You have already clocked out today!');
+                return;
+            }
+            
+            record.clock_out = time;
+            
+            // Calculate hours worked if clock in exists
+            if (record.clock_in) {
+                const clockIn = new Date(`${today}T${record.clock_in}`);
+                const clockOut = new Date(`${today}T${time}`);
+                const hoursWorked = (clockOut - clockIn) / (1000 * 60 * 60);
+                record.hours_worked = hoursWorked;
+                
+                // Add to history
+                attendanceHistory.push({
+                    employee_id: employeeId,
+                    date: today,
+                    clock_in: record.clock_in,
+                    clock_out: time,
+                    status: 'Present',
+                    hours_worked: hoursWorked
+                });
+            }
+            
+            renderTodayAttendance();
+            alert('Clock out recorded successfully');
+        }
+
+        // Calculate overtime (anything over 8 hours is considered overtime)
+        function calculateOvertime(hoursWorked) {
+            if (!hoursWorked) return 0;
+            return Math.max(0, hoursWorked - 8).toFixed(2);
+        }
+        
+        // Render today's attendance table
+        function renderTodayAttendance() {
+            const today = new Date().toISOString().split('T')[0];
+            const filteredAttendance = attendance.filter(record => record.date === today);
+            
+            attendanceBody.innerHTML = employees
+                .filter(emp => emp.status === 'Active')
+                .map(emp => {
+                    const attendanceRecord = filteredAttendance.find(record => record.employee_id === emp.employee_id) || {
+                        employee_id: emp.employee_id,
+                        date: today,
+                        clock_in: null,
+                        clock_out: null,
+                        status: 'Absent',
+                        hours_worked: null
+                    };
+                
+                    return `
+                        <tr onclick="showEmployeeDetails('${emp.employee_id}')">
+                            <td>${emp.employee_id}</td>
+                            <td>${emp.employee_name}</td>
+                            <td>${attendanceRecord.clock_in ? formatTime(attendanceRecord.clock_in) : '-'}</td>
+                            <td>${attendanceRecord.clock_out ? formatTime(attendanceRecord.clock_out) : '-'}</td>
+                            <td><span class="status-badge status-${attendanceRecord.status.toLowerCase().replace(' ', '-')}">${attendanceRecord.status}</span></td>
+                            <td>${emp.shift_type}</td>
+                        </tr>
+                    `;
+                })
+                .join('');
+        }
+
+        // Render employee directory
+        function renderEmployeeDirectory(filter = '') {
+            const filteredEmployees = employees.filter(emp => 
+                emp.employee_name.toLowerCase().includes(filter.toLowerCase()) || 
+                emp.employee_id.toLowerCase().includes(filter.toLowerCase())
+            );
+            
+            employeeGrid.innerHTML = filteredEmployees
+                .map(emp => `
+                    <div class="employee-card" onclick="showEmployeeDetails('${emp.employee_id}')">
+                        <h3>${emp.employee_name}</h3>
+                        <p>ID: ${emp.employee_id}</p>
+                        <p>Department: ${emp.department}</p>
+                        <p>Position: ${emp.position}</p>
+                        <p>Status: <span class="status-${emp.status.toLowerCase().replace(' ', '-')}">${emp.status}</span></p>
+                    </div>
+                `)
+                .join('');
+        }
+
+        // Show employee details
+        function showEmployeeDetails(employeeId) {
+            selectedEmployee = employeeId;
+            const employee = employees.find(emp => emp.employee_id === employeeId);
+            if (!employee) return;
+            
+            // Highlight selected employee card
+            const cards = document.querySelectorAll('.employee-card');
+            cards.forEach(card => card.classList.remove('selected'));
+            const selectedCard = [...cards].find(card => 
+                card.querySelector('h3').textContent === employee.employee_name);
+            if (selectedCard) selectedCard.classList.add('selected');
+            
+            // Highlight selected attendance row
+            const rows = document.querySelectorAll('#attendanceBody tr');
+            rows.forEach(row => row.classList.remove('selected'));
+            const selectedRow = [...rows].find(row => 
+                row.querySelector('td:first-child').textContent === employee.employee_id);
+            if (selectedRow) selectedRow.classList.add('selected');
+            
+            // Update employee name in details section
+            detailEmployeeName.textContent = employee.employee_name;
+            
+            // Show attendance history
+            const empAttendance = attendanceHistory.filter(record => record.employee_id === employeeId);
+            attendanceHistoryBody.innerHTML = empAttendance
+                .map(record => {
+                    const overtime = calculateOvertime(record.hours_worked);
+                    return `
+                        <tr>
+                            <td>${record.date}</td>
+                            <td>${record.clock_in ? formatTime(record.clock_in) : '-'}</td>
+                            <td>${record.clock_out ? formatTime(record.clock_out) : '-'}</td>
+                            <td>${record.hours_worked ? record.hours_worked.toFixed(2) : '-'}</td>
+                            <td>${overtime > 0 ? `<span class="overtime-badge">+${overtime}h</span>` : '-'}</td>
+                            <td class="status-${record.status.toLowerCase().replace(' ', '-')}">${record.status}</td>
+                        </tr>
+                    `;
+                })
+                .join('');
+            
+            // Show shift schedule
+            const empShifts = shiftSchedule.filter(shift => shift.employee_id === employeeId);
+            shiftScheduleBody.innerHTML = empShifts
+                .map(shift => `
+                    <tr>
+                        <td>${shift.shift_type}</td>
+                        <td>${shift.start_date}</td>
+                        <td>${shift.end_date || 'Ongoing'}</td>
+                        <td>${shift.recurring_pattern}</td>
+                    </tr>
+                `)
+                .join('');
+            
+            // Show the details section
+            employeeDetailsSection.style.display = 'block';
+            
+            // Activate the first tab
+            switchTab('attendance');
+        }
+
+        // Switch between tabs
+        function switchTab(tabId) {
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById(`${tabId}Tab`).classList.add('active');
+        }
+
+        // Format time from HH:MM:SS to HH:MM
+        function formatTime(timeString) {
+            if (!timeString) return '';
+            const [hours, minutes] = timeString.split(':');
+            return `${hours}:${minutes}`;
+        }
+
+        // Sign out function
+        function signOut() {
+            alert('You have been signed out');
+            // In a real app, you would redirect to login page
+            // window.location.href = 'login.html';
+        }
+
+        // Open assign shift modal
+        function openAssignShiftModal() {
+            assignShiftModal.style.display = 'flex';
+            
+            // Set default dates
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('assignStartDate').value = today;
+            document.getElementById('assignEndDate').value = '';
+            
+            // Clear any previous selections
+            document.querySelectorAll('.shift-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelectorAll('.employee-list-item').forEach(item => item.classList.remove('selected'));
+            document.getElementById('selectedShiftType').value = '';
+            
+            // Populate employee list
+            employeeSelectionList.innerHTML = employees
+                .filter(emp => emp.status === 'Active')
+                .map(emp => {
+                    const currentShift = shiftSchedule.find(shift => 
+                        shift.employee_id === emp.employee_id && !shift.end_date);
+                    
+                    return `
+                        <div class="employee-list-item" data-empid="${emp.employee_id}">
+                            <span>${emp.employee_name}</span>
+                            <span class="current-shift">Current: ${currentShift ? currentShift.shift_type : 'None'}</span>
+                        </div>
+                    `;
+                })
+                .join('');
+        }
+        
+        // Assign shift to employees
+        function assignShiftToEmployees(e) {
+            e.preventDefault();
+            
+            const shiftType = document.getElementById('selectedShiftType').value;
+            const startDate = document.getElementById('assignStartDate').value;
+            const endDate = document.getElementById('assignEndDate').value || null;
+            const recurringPattern = document.getElementById('assignRecurring').value;
+            
+            if (!shiftType) {
+                alert('Please select a shift type');
+                return;
+            }
+            
+            const selectedEmployees = Array.from(document.querySelectorAll('.employee-list-item.selected'))
+                .map(item => item.getAttribute('data-empid'));
+            
+            if (selectedEmployees.length === 0) {
+                alert('Please select at least one employee');
+                return;
+            }
+            
+            selectedEmployees.forEach(empId => {
+                // End the current shift if it exists
+                const currentShiftIndex = shiftSchedule.findIndex(shift => 
+                    shift.employee_id === empId && !shift.end_date);
+                
+                if (currentShiftIndex !== -1) {
+                    shiftSchedule[currentShiftIndex].end_date = startDate;
+                }
+                
+                // Add new shift
+                shiftSchedule.push({
+                    employee_id: empId,
+                    shift_type: shiftType,
+                    start_date: startDate,
+                    end_date: endDate,
+                    recurring_pattern: recurringPattern
+                });
+                
+                // Update employee's current shift type
+                const employeeIndex = employees.findIndex(emp => emp.employee_id === empId);
+                if (employeeIndex !== -1) {
+                    employees[employeeIndex].shift_type = shiftType;
+                }
+            });
+            
+            // Close modal
+            assignShiftModal.style.display = 'none';
+            
+            // Refresh views
+            if (selectedEmployee && selectedEmployees.includes(selectedEmployee)) {
+                showEmployeeDetails(selectedEmployee);
+            }
+            renderTodayAttendance();
+            renderEmployeeDirectory();
+            
+            alert(`Shift assigned successfully to ${selectedEmployees.length} employee(s)`);
+        }
+
+        // QR Code Functions
+        function openQrGeneratorModal() {
+            qrGeneratorModal.style.display = 'flex';
+            
+            // Clear previous QR code
+            document.getElementById('qrCodePreview').innerHTML = '';
+            document.getElementById('downloadQrBtn').disabled = true;
+            
+            // Populate employee dropdown
+            const qrEmployeeSelect = document.getElementById('qrEmployeeSelect');
+            qrEmployeeSelect.innerHTML = '<option value="">-- Select Employee --</option>' + 
+                employees.map(emp => 
+                    `<option value="${emp.employee_id}">${emp.employee_name} (${emp.employee_id})</option>`
+                ).join('');
+            
+            // Set default content template
+            document.getElementById('qrContent').value = 
+                `Employee ID: {id}\nName: {name}\nDepartment: {dept}\nPosition: {position}`;
+        }
+
+        function generateQrCode() {
+            const employeeId = document.getElementById('qrEmployeeSelect').value;
+            if (!employeeId) {
+                alert('Please select an employee');
+                return;
+            }
+            
+            const contentTemplate = document.getElementById('qrContent').value;
+            if (!contentTemplate) {
+                alert('Please enter QR code content');
+                return;
+            }
+            
+            const employee = employees.find(emp => emp.employee_id === employeeId);
+            if (!employee) return;
+            
+            // Replace placeholders with actual values
+            let qrContent = contentTemplate
+                .replace(/{id}/g, employee.employee_id)
+                .replace(/{name}/g, employee.employee_name)
+                .replace(/{dept}/g, employee.department)
+                .replace(/{position}/g, employee.position)
+                .replace(/{status}/g, employee.status)
+                .replace(/{shift}/g, employee.shift_type)
+                .replace(/{email}/g, employee.email)
+                .replace(/{phone}/g, employee.contact_number);
+            
+            // Generate QR code
+            const qrCodePreview = document.getElementById('qrCodePreview');
+            qrCodePreview.innerHTML = '';
+            
+            new QRCode(qrCodePreview, {
+                text: qrContent,
+                width: 200,
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Enable download button
+            document.getElementById('downloadQrBtn').disabled = false;
+            
+            // Store the current QR data for download
+            currentQrData = {
+                content: qrContent,
+                employee: employee
+            };
+        }
+
+        function downloadQrCode() {
+            if (!currentQrData) return;
+            
+            const canvas = document.querySelector('#qrCodePreview canvas');
+            if (!canvas) return;
+            
+            // Create a temporary canvas with logo and text
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            const padding = 20;
+            
+            // Set canvas size (QR code + padding + space for text/logo)
+            tempCanvas.width = canvas.width + padding * 2;
+            tempCanvas.height = canvas.height + padding * 2 + 60; // Extra space for text
+            
+            // White background
+            tempCtx.fillStyle = '#ffffff';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Add company name at top
+            tempCtx.fillStyle = '#2e8b57';
+            tempCtx.font = 'bold 16px Arial';
+            tempCtx.textAlign = 'center';
+            tempCtx.fillText('PARADISE HOTEL', tempCanvas.width / 2, 30);
+            
+            // Add QR code
+            tempCtx.drawImage(canvas, padding, 50);
+            
+            // Add employee name at bottom
+            tempCtx.fillStyle = '#000000';
+            tempCtx.font = '14px Arial';
+            tempCtx.fillText(currentQrData.employee.employee_name, tempCanvas.width / 2, tempCanvas.height - 15);
+            
+            // Convert to image and download
+            const link = document.createElement('a');
+            link.download = `ParadiseHotel_${currentQrData.employee.employee_id}.png`;
+            link.href = tempCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function openQrScanner() {
+            qrScannerModal.style.display = 'flex';
+            document.getElementById('qrScanResult').style.display = 'none';
+            document.getElementById('viewEmployeeBtn').style.display = 'none';
+            
+            // Initialize scanner
+            html5QrCode = new Html5Qrcode("qrScannerContainer");
+            
+            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                // Stop scanning
+                html5QrCode.stop().then(() => {
+                    // Show result
+                    const resultDiv = document.getElementById('qrScanResult');
+                    const resultContent = document.getElementById('qrResultContent');
+                    const viewEmployeeBtn = document.getElementById('viewEmployeeBtn');
+                    
+                    resultContent.textContent = decodedText;
+                    resultDiv.style.display = 'block';
+                    
+                    // Try to find employee ID in the scanned data
+                    const employeeIdMatch = decodedText.match(/Employee ID: (\w+)/);
+                    if (employeeIdMatch && employeeIdMatch[1]) {
+                        const employeeId = employeeIdMatch[1];
+                        if (employees.some(emp => emp.employee_id === employeeId)) {
+                            viewEmployeeBtn.style.display = 'inline-block';
+                            viewEmployeeBtn.onclick = function() {
+                                showEmployeeDetails(employeeId);
+                                qrScannerModal.style.display = 'none';
+                            };
+                        }
+                    }
+                });
+            };
+            
+            const config = { fps: 10, qrbox: 250 };
+            
+            // Start scanner
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                qrCodeSuccessCallback,
+                errorMessage => {
+                    console.error(`QR Code scan error: ${errorMessage}`);
+                }
+            );
+        }
+
+        function closeQrScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop();
+            }
+        }
+
+  
+
+            // Toggle data insight menu
+            dataInsightMenu.addEventListener('click', toggleDataInsightMenu);
+
+            // Search employees
+            searchEmployees.addEventListener('input', (e) => {
+                renderEmployeeDirectory(e.target.value);
+            });
+            
+            // Search attendance
+            searchAttendance.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = attendanceBody.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    const id = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+                    if (name.includes(searchTerm) || id.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Filter by department
+            filterDepartment.addEventListener('change', (e) => {
+                const department = e.target.value;
+                if (!department) {
+                    renderEmployeeDirectory();
+                    return;
+                }
+                
+                const filteredEmployees = employees.filter(emp => emp.department === department);
+                employeeGrid.innerHTML = filteredEmployees
+                    .map(emp => `
+                        <div class="employee-card" onclick="showEmployeeDetails('${emp.employee_id}')">
+                            <h3>${emp.employee_name}</h3>
+                            <p>ID: ${emp.employee_id}</p>
+                            <p>Department: ${emp.department}</p>
+                            <p>Position: ${emp.position}</p>
+                            <p>Status: <span class="status-${emp.status.toLowerCase().replace(' ', '-')}">${emp.status}</span></p>
+                        </div>
+                    `)
+                    .join('');
+            });
+            
+            // Tab switching
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+            
+            // Add employee modal
+            addEmployeeBtn.addEventListener('click', () => {
+                addEmployeeModal.style.display = 'flex';
+            });
+            
+            // Assign shift modal
+            assignShiftBtn.addEventListener('click', openAssignShiftModal);
+            
+            // Close modals
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    addEmployeeModal.style.display = 'none';
+                    editShiftModal.style.display = 'none';
+                    assignShiftModal.style.display = 'none';
+                    qrGeneratorModal.style.display = 'none';
+                    closeQrScanner();
+                    qrScannerModal.style.display = 'none';
+                });
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === addEmployeeModal) {
+                    addEmployeeModal.style.display = 'none';
+                }
+                if (e.target === editShiftModal) {
+                    editShiftModal.style.display = 'none';
+                }
+                if (e.target === assignShiftModal) {
+                    assignShiftModal.style.display = 'none';
+                }
+                if (e.target === qrGeneratorModal) {
+                    qrGeneratorModal.style.display = 'none';
+                }
+                if (e.target === qrScannerModal) {
+                    closeQrScanner();
+                    qrScannerModal.style.display = 'none';
+                }
+            });
+            
+            // Add employee form submission
+            employeeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const newEmployee = {
+                    employee_id: document.getElementById('empId').value,
+                    employee_name: document.getElementById('empName').value,
+                    status: document.getElementById('empStatus').value,
+                    shift_type: document.getElementById('empShift').value,
+                    department: document.getElementById('empDept').value,
+                    position: document.getElementById('empPosition').value,
+                    hire_date: document.getElementById('empHireDate').value,
+                    contact_number: document.getElementById('empContact').value,
+                    email: document.getElementById('empEmail').value
+                };
+                
+                // Check if employee ID already exists
+                const existingEmployee = employees.find(emp => emp.employee_id === newEmployee.employee_id);
+                if (existingEmployee) {
+                    alert('Employee ID already exists!');
+                    return;
+                }
+                
+                employees.push(newEmployee);
+                
+                // Add default shift schedule
+                shiftSchedule.push({
+                    employee_id: newEmployee.employee_id,
+                    shift_type: newEmployee.shift_type,
+                    start_date: newEmployee.hire_date,
+                    end_date: null,
+                    recurring_pattern: 'Mon-Fri'
+                });
+                
+                // Add default attendance record for today (absent)
+                const today = new Date().toISOString().split('T')[0];
+                attendance.push({
+                    employee_id: newEmployee.employee_id,
+                    date: today,
+                    clock_in: null,
+                    clock_out: null,
+                    status: 'Absent',
+                    hours_worked: null
+                });
+                
+                // Reset form
+                employeeForm.reset();
+                addEmployeeModal.style.display = 'none';
+                
+                // Refresh views
+                renderEmployeeDirectory();
+                renderTodayAttendance();
+                
+                alert('Employee added successfully');
+            });
+            
+            // Update shift button
+            updateShiftBtn.addEventListener('click', () => {
+                if (!selectedEmployee) {
+                    alert('Please select an employee first');
+                    return;
+                }
+                
+                // Set current values in the form
+                const currentShift = shiftSchedule.find(shift => 
+                    shift.employee_id === selectedEmployee && !shift.end_date);
+                
+                if (currentShift) {
+                    document.getElementById('shiftType').value = currentShift.shift_type;
+                    document.getElementById('shiftStartDate').value = currentShift.start_date;
+                    document.getElementById('shiftEndDate').value = '';
+                    document.getElementById('shiftRecurring').value = currentShift.recurring_pattern || 'Mon-Fri';
+                }
+                
+                editShiftModal.style.display = 'flex';
+            });
+            
+            // Shift form submission
+            shiftForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                if (!selectedEmployee) return;
+                
+                // End the current shift if it exists
+                const currentShiftIndex = shiftSchedule.findIndex(shift => 
+                    shift.employee_id === selectedEmployee && !shift.end_date);
+                
+                if (currentShiftIndex !== -1) {
+                    shiftSchedule[currentShiftIndex].end_date = document.getElementById('shiftStartDate').value;
+                }
+                
+                // Add new shift
+                shiftSchedule.push({
+                    employee_id: selectedEmployee,
+                    shift_type: document.getElementById('shiftType').value,
+                    start_date: document.getElementById('shiftStartDate').value,
+                    end_date: document.getElementById('shiftEndDate').value || null,
+                    recurring_pattern: document.getElementById('shiftRecurring').value
+                });
+                
+                // Update employee's current shift type
+                const employeeIndex = employees.findIndex(emp => emp.employee_id === selectedEmployee);
+                if (employeeIndex !== -1) {
+                    employees[employeeIndex].shift_type = document.getElementById('shiftType').value;
+                }
+                
+                // Reset form and close modal
+                shiftForm.reset();
+                editShiftModal.style.display = 'none';
+                
+                // Refresh views
+                showEmployeeDetails(selectedEmployee);
+                renderTodayAttendance();
+                
+                alert('Shift schedule updated successfully');
+            });
+            
+            // Assign shift form submission
+            assignShiftForm.addEventListener('submit', assignShiftToEmployees);
+            
+            // Shift option selection
+            document.querySelectorAll('.shift-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.shift-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    document.getElementById('selectedShiftType').value = this.getAttribute('data-shift');
+                });
+            });
+            
+            // Employee selection in assign shift modal
+            employeeSelectionList.addEventListener('click', function(e) {
+                const item = e.target.closest('.employee-list-item');
+                if (item) {
+                    item.classList.toggle('selected');
+                }
+            });
+            
+            // Refresh attendance
+            refreshAttendance.addEventListener('click', () => {
+                renderTodayAttendance();
+            });
+            
+            // Filter attendance history
+            filterAttendance.addEventListener('click', () => {
+                if (!selectedEmployee) {
+                    alert('Please select an employee first');
+                    return;
+                }
+                
+                const filteredHistory = attendanceHistory.filter(record => {
+                    if (record.employee_id !== selectedEmployee) return false;
+                    
+                    const recordDate = new Date(record.date);
+                    const start = new Date(startDate.value);
+                    const end = new Date(endDate.value);
+                    
+                    return recordDate >= start && recordDate <= end;
+                });
+                
+                attendanceHistoryBody.innerHTML = filteredHistory
+                    .map(record => {
+                        const overtime = calculateOvertime(record.hours_worked);
+                        return `
+                            <tr>
+                                <td>${record.date}</td>
+                                <td>${record.clock_in ? formatTime(record.clock_in) : '-'}</td>
+                                <td>${record.clock_out ? formatTime(record.clock_out) : '-'}</td>
+                                <td>${record.hours_worked ? record.hours_worked.toFixed(2) : '-'}</td>
+                                <td>${overtime > 0 ? `<span class="overtime-badge">+${overtime}h</span>` : '-'}</td>
+                                <td class="status-${record.status.toLowerCase().replace(' ', '-')}">${record.status}</td>
+                            </tr>
+                        `;
+                    })
+                    .join('');
+            });
+            
+            // QR Code functionality
+            generateQrBtnMain.addEventListener('click', openQrGeneratorModal);
+            scanQrBtn.addEventListener('click', openQrScanner);
+            generateQrBtn.addEventListener('click', generateQrCode);
+            downloadQrBtn.addEventListener('click', downloadQrCode);
+        
+
+        // Initialize the app
+        function init() {
+            updateCurrentDate();
+            renderTodayAttendance();
+            renderEmployeeDirectory();
+            setupEventListeners();
+            
+            // Set default dates for attendance filter
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            startDate.value = thirtyDaysAgo.toISOString().split('T')[0];
+            endDate.value = today.toISOString().split('T')[0];
+            
+            // Populate department filter
+            const departments = [...new Set(employees.map(emp => emp.department))];
+            filterDepartment.innerHTML = '<option value="">All Departments</option>' + 
+                departments.map(dept => `<option value="${dept}">${dept}</option>`).join('');
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Make functions available globally
+        window.handleClockIn = handleClockIn;
+        window.handleClockOut = handleClockOut;
+        window.showEmployeeDetails = showEmployeeDetails;
+        window.signOut = signOut;
+        window.toggleSidebar = toggleSidebar;
+
+
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Close dropdown when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.user-info') && !event.target.closest('.user-info')) {
+                const dropdowns = document.getElementsByClassName("user-dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    const openDropdown = dropdowns[i];
+                    if (openDropdown.style.display === 'block') {
+                        openDropdown.style.display = 'none';
+                    }
+                }
+            }
+        }
+
+        // Sign out function
+        function signOut() {
+            // Add your sign out logic here
+            alert('Signing out...');
+            // window.location.href = 'login.html'; // Redirect to login page
+        }
+    </script>
+</body>
+</html>
