@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 06, 2025 at 04:19 PM
+-- Generation Time: May 06, 2025 at 10:56 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,7 +41,8 @@ CREATE TABLE `session_logs` (
 INSERT INTO `session_logs` (`id`, `username`, `action`, `timestamp`) VALUES
 (1, 'zamielkairojavier@gmail.com', 'logout', '2025-05-06 21:54:21'),
 (2, 'zamielkairojavier@gmail.com', 'logout', '2025-05-06 22:00:31'),
-(3, 'zamielkairojavier@gmail.com', 'logout', '2025-05-06 22:03:28');
+(3, 'zamielkairojavier@gmail.com', 'logout', '2025-05-06 22:03:28'),
+(4, 'zamielkairojavier@gmail.com', 'logout', '2025-05-06 22:51:46');
 
 -- --------------------------------------------------------
 
@@ -56,7 +57,7 @@ CREATE TABLE `users` (
   `number` varchar(20) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('admin','user') NOT NULL DEFAULT 'user'
+  `role` enum('Hotel Manager','Hotel Employee') NOT NULL DEFAULT 'Hotel Employee'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -64,8 +65,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `employee_code`, `name`, `number`, `username`, `password`, `role`) VALUES
-(1, 'EMP-001', 'Bimbo Abejay', '09519342015', 'bimboabejay@gmail.com', '$2y$10$/KvZBhnIgEChH9.A.rlMSufzUe7xuTcm5aEeSDc43vu2fOQg02KHi', ''),
-(19, 'EMP-019', 'Zamiel Kairo Javier', '09274816473', 'zamielkairojavier@gmail.com', '$2y$10$orcTlH9zTyT4ewesGmTo4egrr01Q/8OOnY7pVg1FwZQkpIsv6JlDq', '');
+(1, 'EMP-001', 'Bimbo Abejay', '09519342015', 'bimboabejay@gmail.com', '$2y$10$/KvZBhnIgEChH9.A.rlMSufzUe7xuTcm5aEeSDc43vu2fOQg02KHi', 'Hotel Employee'),
+(19, 'EMP-019', 'Zamiel Kairo Javier', '09274816473', 'zamielkairojavier@gmail.com', '$2y$10$orcTlH9zTyT4ewesGmTo4egrr01Q/8OOnY7pVg1FwZQkpIsv6JlDq', 'Hotel Manager'),
+(20, 'EMP-020', 'sample', '10293109231', 'sample@gmail.com', '$2y$10$UKxK53CD4iuYMJXndfb14uv.N/TLIJSV45HZO94NMsNdB3bhHSuFi', 'Hotel Employee');
 
 --
 -- Indexes for dumped tables
@@ -93,13 +95,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `session_logs`
 --
 ALTER TABLE `session_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
